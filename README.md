@@ -11,4 +11,8 @@ This project is a copy from:
  - https://github.com/colearendt/shinytest-example 
  
 
+Make sure that the environment is restored with 
+`renv::restore()`
+
+
 
