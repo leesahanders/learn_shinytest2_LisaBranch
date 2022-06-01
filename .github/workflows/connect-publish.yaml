@@ -1,0 +1,23 @@
+name: connect-publish
+on:
+  push:
+    branches: [main]
+
+jobs:
+  test-app:
+    uses: ./.github/workflows/test-actions.yaml
+  connect-publish:
+    name: connect-publish
+    needs: [test-app]
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - name: Publish Connect content
+        uses: rstudio/actions/connect-publish@main
+        with:
+          url: https://colorado.rstudio.com/rsc/
+          api-key: ${{ secrets.CONNECT_API_KEY }}
+          access-type: acl
+          dir: |
+            .:/shinytest2_gha
+
