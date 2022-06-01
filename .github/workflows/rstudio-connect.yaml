@@ -1,0 +1,33 @@
+name: Deploy main to Connect
+on:
+  push:
+    branches:
+    - main
+
+jobs:
+  deploy:
+    name: Deploy the main branch to RStudio Connect
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+
+      # Connect does not like `renv`'s `./.Rprofile`
+      # Removing from deployment as Connect listens to the `./manifest.json` file
+      - name: Remove `.Rprofile`
+        shell: bash
+        run: |
+          rm -f .Rprofile
+      - name: Publish the app
+        uses: rstudio/actions/connect-publish@main
+        with:
+          url: http://3.132.233.58
+          api-key: ${{ secrets.CONNECT_API_KEY }}
+          access-type: all
+          show-logs: true
+          # for more on app identifiers or multiple app deployments, see
+          # https://github.com/rstudio/actions/tree/main/connect-publish#dir
+          # Deploy app located at `./` to `shinytest-example-app`
+          # with vanity url `/shinytest-example-app`
+          dir: |
+            .:/shinytest-example-app

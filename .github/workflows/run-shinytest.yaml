@@ -1,0 +1,108 @@
+# from: https://github.com/rstudio/shiny-testing-gha-example/blob/single_platform_snapshot/.github/workflows/run-tests.yaml
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+name: Run shinytest
+
+jobs:
+  run-tests:
+    runs-on: ${{ matrix.config.os }}
+
+    name: ${{ matrix.config.os }} (${{ matrix.config.r }})
+
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          # disabled b/c shinytest on windows has an error
+          #- {os: windows-latest, r: 'release'}
+          # disabled due to race conditions / parallelism
+          #- {os: macOS-latest, r: 'release'}
+          # Match your manifest file R version
+          - {os: ubuntu-18.04, r: '4.0.2', rspm: "https://packagemanager.rstudio.com/cran/__linux__/bionic/latest"}
+
+    env:
+      R_REMOTES_NO_ERRORS_FROM_WARNINGS: true
+      RSPM: ${{ matrix.config.rspm }}
+
+    steps:
+      # do not convert line feeds in windows
+      - name: Windows git setup
+        if: runner.os == 'Windows'
+        run:
+          git config --global core.autocrlf false
+
+      - uses: actions/checkout@v2
+
+      - uses: r-lib/actions/setup-r@master
+        id: install-r
+        with:
+          r-version: ${{ matrix.config.r }}
+
+      - uses: r-lib/actions/setup-pandoc@master
+
+      - name: Cache R packages
+        uses: actions/cache@v1
+        with:
+          path: renv/library
+          key: ${{ matrix.config.os }}-${{ steps.install-r.outputs.installed-r-version }}-1-${{ hashFiles('renv.lock') }}
+          restore-keys: ${{ matrix.config.os }}-${{ steps.install-r.outputs.installed-r-version }}-1-
+
+      - name: Make sure renv exists
+        shell: Rscript {0}
+        run: |
+          if (system.file(package = "renv") == "") install.packages("renv")
+      - name: Verify R version matches
+        shell: Rscript {0}
+        run: |
+          renv::restore(packages = "jsonlite")
+          # Assert that R versions match
+          stopifnot(
+            compareVersion(
+              paste0(R.version$major, ".", R.version$minor),
+              jsonlite::read_json("renv.lock")$R$Version
+            ) == 0
+          )
+      - name: Install system dependencies
+        if: runner.os == 'Linux'
+        # do not record `pak` activity
+        shell: Rscript {0}
+        run: |
+          install.packages("pak", repos = "https://r-lib.github.io/p/pak/dev/")
+          lapply(names(jsonlite::read_json("renv.lock")$Packages), function(pkg) {
+            pak::pkg_system_requirements(pkg, execute = TRUE)
+          })
+          remove.packages("pak")
+      - name: Restore renv packages
+        shell: Rscript {0}
+        run: |
+          renv::restore()
+      - name: Find PhantomJS path
+        id: phantomjs
+        run: |
+          echo "::set-output name=path::$(Rscript -e 'cat(shinytest:::phantom_paths()[[1]])')"
+      - name: Cache PhantomJS
+        uses: actions/cache@v2
+        with:
+          path: ${{ steps.phantomjs.outputs.path }}
+          key: ${{ matrix.config.os }}-phantomjs
+          restore-keys: ${{ matrix.config.os }}-phantomjs
+      - name: Install PhantomJS
+        shell: Rscript {0}
+        run: |
+          if (!shinytest::dependenciesInstalled()) shinytest::installDependencies()
+      - name: Run tests
+        shell: Rscript {0}
+        run: |
+          shiny::runTests(".", assert = TRUE)
+      - name: Upload test results
+        if: failure()
+        uses: actions/upload-artifact@master
+        with:
+          name: ${{ runner.os }}-r${{ matrix.config.r }}-tests
+          path: tests
