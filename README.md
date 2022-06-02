@@ -17,16 +17,16 @@ Credit to Cole Arendt whose original documentation has been pulled in below and 
  
 The goal of this example is to walk users through setting up a testing and automated publishing pipeline (continuous integration/continuous deployment) using github actions. To that end we can break this down into three separate pieces that will be put together at the end: 
 
-1. Reproduceability
+1. Reproducibility
    - Using [git](https://happygitwithr.com/), [usethis](https://usethis.r-lib.org/index.html), and [reproduceable environments](https://environments.rstudio.com/) using [renv](https://rstudio.github.io/renv/articles/renv.html). 
 
 2. Testing 
    - Using [shinytest2](https://rstudio.github.io/shinytest2/) based on the [testthat](https://testthat.r-lib.org/) workflow. For examples the [R Packages](https://r-pkgs.org/tests.html) documentation on testing might be useful.  
 
-3. Automation
-   - Using [github actions](https://docs.github.com/en/actions) and various community built action scripts to simplify the process such as [the actions written by the r-lib team](https://github.com/r-lib/actions). 
+3. Continuous Integration / Continuous Deployment 
+   - Automation using [github actions](https://docs.github.com/en/actions) and various community built action scripts to simplify the process such as [the actions written by the r-lib team](https://github.com/r-lib/actions). 
 
-## Reproduceability (Trevor's run through)
+## Reproducibility (Trevor's run through)
 
 This example is mimicking a workflow where a developer is using [renv](https://rstudio.github.io/renv/articles/renv.html) however the project isn't currently using git. We'll be walking through the steps of setting up the provided project files on the [Workbench server provided by RStudio SolEng](https://colorado.rstudio.com/), loading the developer provided environment, and setting up [git](https://happygitwithr.com/) change control using [usethis](https://usethis.r-lib.org/index.html). 
 
@@ -59,7 +59,7 @@ Now let's get set up for testing. We can either develop tests interactively or c
   
 1. Install Shinytest dependencies with `shinytest::installDependencies()`.
  
-2. Install the dev version of pak to resolve the map_mold dependency error (see: https://github.com/r-lib/pak/issues/298) with 'install.packages("pak", repos = "https://r-lib.github.io/p/pak/dev/")'.
+2. Install the dev version of pak to resolve the map_mold dependency error (see: https://github.com/r-lib/pak/issues/298) with `install.packages("pak", repos = "https://r-lib.github.io/p/pak/dev/")`.
  
 3. Load the installed `library(pak)`.
  
@@ -79,7 +79,7 @@ Now let's get set up for testing. We can either develop tests interactively or c
 
 Tip: The shinytest package commands include testApp() - don't do this! This is antiquated. 
 
-## Automation (Trevor's run through)
+## Continuous Integration / Continuous Deployment (Trevor's run through)
 
 Github actions are a new capability of using triggers during the git workflow (such as on committing a project, pushing a project, or on PR) for kicking off a series of steps defined in a recipe yaml file. 
 

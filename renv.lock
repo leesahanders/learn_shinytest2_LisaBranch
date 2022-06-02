@@ -635,6 +635,14 @@
         "askpass"
       ]
     },
+    "pak": {
+      "Package": "pak",
+      "Version": "0.3.0",
+      "Source": "Repository",
+      "Repository": "RSPM",
+      "Hash": "a39d952e8d1f652b6f31469a73efce39",
+      "Requirements": []
+    },
     "pillar": {
       "Package": "pillar",
       "Version": "1.6.4",
@@ -887,6 +895,19 @@
         "shiny",
         "testthat",
         "withr"
+      ]
+    },
+    "shinyvalidate": {
+      "Package": "shinyvalidate",
+      "Version": "0.1.2",
+      "Source": "Repository",
+      "Repository": "RSPM",
+      "Hash": "4ce7aa115e26a4eefbecab1b27bc3ada",
+      "Requirements": [
+        "glue",
+        "htmltools",
+        "rlang",
+        "shiny"
       ]
     },
     "sourcetools": {

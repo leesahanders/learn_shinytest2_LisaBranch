@@ -1,4 +1,6 @@
 library(shinytest2)
+library(pak) #install.packages("pak", repos = "https://r-lib.github.io/p/pak/dev/")
+library(shinyvalidate)
 
 test_that("{shinytest2} recording: test1", {
   app <- AppDriver$new(name = "test1", height = 606, width = 871, variant= platform_variant())
