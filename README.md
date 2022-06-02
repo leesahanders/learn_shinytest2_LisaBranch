@@ -48,7 +48,7 @@ This example is mimicking a workflow where a developer is using [renv](https://r
 
 So we have now taken this project where we uploaded a zip onto workbench and we have now set it up in git so we can take advantage of automated workflows. 
 
-Tip: Other authentication options can also work, such as setting up a ssh key and configuring the git credentials with `usethis::use_git_config(user.name = "MyName", user.email = "MyEmail@Email.com")`
+Tip: Other authentication options can also work, such as setting up a [ssh key and configuring the git credentials](https://happygitwithr.com/ssh-keys.html) with `usethis::use_git_config(user.name = "MyName", user.email = "MyEmail@Email.com")`
 
 ## Testing (Trevor's run through)
 
@@ -91,7 +91,7 @@ Tip: In the RStudio IDE through the 'files' pane click on the wheel to select th
 
 Lets setup and run our first Github Actions workflow - automated running of a test the deployment to the Connect server. We will be using one yaml recipe file that lives at  [`.github/workflows/connect-publish.yaml`](./.github/workflows/connect-publish.yaml)
 
-####Setting up for publishing to Connect: 
+#### Setting up for publishing to Connect: 
 
 1. Create an API key on the Connect server you will later be deploying to and in GitHub Actions on your repo, set the `CONNECT_API_KEY` secret
 
@@ -125,32 +125,32 @@ Lets setup and run our first Github Actions workflow - automated running of a te
 
 7. Verify that your recipe yaml now looks something like: 
 
-<details>
-  <summary>Click to expand</summary>
+  <details>
+    <summary>connect-publish yaml, click to expand</summary>
+    
+  ```
+  name: connect-publish
+  on:
+    push:
+      branches: [master]
   
-```
-name: connect-publish
-on:
-  push:
-    branches: [master]
-
-jobs:
-  connect-publish:
-    name: connect-publish
-    runs-on: ubuntu-20.04
-    steps:
-      - uses: actions/checkout@v2
-      - name: Publish Connect content
-        uses: rstudio/actions/connect-publish@main
-        with:
-          url: https://colorado.rstudio.com/rsc
-          api-key: ${{ secrets.CONNECT_API_KEY }}
-          access-type: acl
-          dir: |
-            .:/shiny-workshop-test 
-            
-```
-</details>
+  jobs:
+    connect-publish:
+      name: connect-publish
+      runs-on: ubuntu-20.04
+      steps:
+        - uses: actions/checkout@v2
+        - name: Publish Connect content
+          uses: rstudio/actions/connect-publish@main
+          with:
+            url: https://colorado.rstudio.com/rsc
+            api-key: ${{ secrets.CONNECT_API_KEY }}
+            access-type: acl
+            dir: |
+              .:/shiny-workshop-test 
+              
+  ```
+  </details>
 
 9. Test the automation by committing and pushing the changes. Github will see the action and will automatically run the defined recipe and on push will try to publish the app to the Connect server specified. 
 
@@ -191,45 +191,45 @@ We will be creating a test yaml recipe at [`.github/workflows/test-actions.yaml`
  
 8. Verify that yYour test yaml looks something like: 
 
-<details>
-  <summary>Click to expand</summary>
+  <details>
+    <summary>test-app yaml, click to expand</summary>
+    
+  ```
+  on:
+    pull_request:
+      branches: [master]
+    workflow_call:
+    
+  name: test-app
   
-```
-on:
-  pull_request:
-    branches: [master]
-  workflow_call:
+  jobs:
+    test-app:
+      name: test-app
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v2
   
-name: test-app
-
-jobs:
-  test-app:
-    name: test-app
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-
-      - uses: r-lib/actions/setup-pandoc@v2
-
-      - uses: r-lib/actions/setup-r@v2
-        with:
-          r-version: release
-          use-public-rspm: true
-
-      # Connect does not like `renv`'s `./.Rprofile`
-      # Removing from deployment as Connect listens to the `./manifest.json` file
-      - name: Remove `.Rprofile`
-        shell: bash
-        run: |
-          rm .Rprofile
-
-      - uses: r-lib/actions/setup-renv@v2 # use our renv.lock
-
-      - name: Test app
-        uses: rstudio/shinytest2/actions/test-app@main
-```
-
-</details>
+        - uses: r-lib/actions/setup-pandoc@v2
+  
+        - uses: r-lib/actions/setup-r@v2
+          with:
+            r-version: release
+            use-public-rspm: true
+  
+        # Connect does not like `renv`'s `./.Rprofile`
+        # Removing from deployment as Connect listens to the `./manifest.json` file
+        - name: Remove `.Rprofile`
+          shell: bash
+          run: |
+            rm .Rprofile
+  
+        - uses: r-lib/actions/setup-renv@v2 # use our renv.lock
+  
+        - name: Test app
+          uses: rstudio/shinytest2/actions/test-app@main
+  ```
+  
+  </details>
 
 
 #### Updates to the main recipe yaml
@@ -242,35 +242,34 @@ jobs:
 
 2. Verify that after making changes the yaml now looks something like: 
 
-<details>
-  <summary>Click to expand</summary>
+  <details>
+    <summary>connect-publish yaml, click to expand</summary>
+    
+  ```
+  name: connect-publish
+  on:
+    push:
+      branches: [master]
   
-```
-name: connect-publish
-on:
-  push:
-    branches: [master]
-
-jobs:
-  test-app:
-    uses: ./.github/workflows/test-actions.yaml
-  connect-publish:
-    name: connect-publish
-    needs: [test-app]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Publish Connect content
-        uses: rstudio/actions/connect-publish@main
-        with:
-          url: https://colorado.rstudio.com/rsc/
-          api-key: ${{ secrets.CONNECT_API_KEY }}
-          access-type: acl
-          dir: |
-            .:/shiny-workshop-test-prod
-```
-
-</details>
+  jobs:
+    test-app:
+      uses: ./.github/workflows/test-actions.yaml
+    connect-publish:
+      name: connect-publish
+      needs: [test-app]
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v2
+        - name: Publish Connect content
+          uses: rstudio/actions/connect-publish@main
+          with:
+            url: https://colorado.rstudio.com/rsc/
+            api-key: ${{ secrets.CONNECT_API_KEY }}
+            access-type: acl
+            dir: |
+              .:/shiny-workshop-test-prod
+  ```
+  </details>
 
 We can now do the same steps of testing our automation by committing and pushing the changes. Github will see the action and will automatically run. We can open a browser window in our git repo and go to actions -> workflows to watch real time it's progress. 
 
