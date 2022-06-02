@@ -1,7 +1,6 @@
-# learn_shinytest2_LisaBranch
+# learn_shinytest2 (Lisa's branch)
 
-<details>
-  <summary>Project history, click to expand</summary>
+# Project History: 
   
 This project is a copy from: 
  - https://github.com/sbhagerty/learn_shinytest2
@@ -11,24 +10,6 @@ With references, useful details, and pulling in documentation from:
  - https://docs.google.com/presentation/d/1PQ_xZ4MGqB_edc26ty3a97eCM55gwKgPsJ1h1mpEjWA/edit#slide=id.g12d9053b0ec_0_44
  - https://rstudio.github.io/renv/articles/renv.html
  - https://github.com/colearendt/shinytest-example 
-</details>
- 
- 
-# A collapsible section with markdown
-
-<details>
-  <summary>Click to expand!</summary>
-  
-  ## Heading
-  1. A numbered
-  2. list
-     * With some
-     * Sub bullets
-</details>
-
-<details>
-  <summary>Click to expand!</summary>
-
 </details>
 
 # Goal
@@ -68,9 +49,9 @@ Tip: Other authentication options can also work, such as setting up a ssh key an
 
 ## Trevor's run through: Testing
 
-Now let's get set up for testing. We can either develop tests interactively or can programmatically create tests and run them manually or through automation (which is what we will be doing below). Tests are stored in the [`./tests/testthat/`](./tests/testthat/) folder. 
+Now let's get set up for testing. We can either develop tests interactively or can programmatically create tests and run them manually or through automation (which is what we will be doing below). Tests are stored in the [`./tests/testthat/`](./tests/testthat/) folder. This project already comes with some tests created for use that can be run interactively or through automation. New tests could also be created either using the record function and can be added or can be directly added to the tests code. 
 
-Dependencies: 
+Dependencies (useful in case of debugging): 
 
 <details>
   <summary>Dependencies set up, click to expand: </summary>
@@ -85,7 +66,6 @@ Dependencies:
 
 </details>
 
-
 Creating and running tests manually: 
 
 1. Load `library(shinytest2)`
@@ -94,15 +74,15 @@ Creating and running tests manually:
  
 3. Interact with your app, setting inputs and recording expected outputs. Save test and exit. 
  
-4. Run test with `shinytest2::test_app()`.
+4. Run tests with `shinytest2::test_app()`.
 
 Tip: The shinytest package commands include testApp() - don't do this! This is antiquated. 
 
-## Trevor's run through: Github Actions
+## Trevor's run through: Automation with Github Actions
 
 Github actions are a new capability of using triggers during the git workflow (such as on committing a project, pushing a project, or on PR) kicking off a series of steps defined in a recipe yaml file. 
 
-Tip: In the file explorer click on the wheel and select "show hidden files"
+Tip: In the RStudio IDE through the 'files' pane click on the wheel to select the "show hidden files" option. 
 
 ### First goal: Publish to connect server using a github action 
 
@@ -122,13 +102,13 @@ Setting up for publishing to Connect:
 
 Creating the automation yaml recipe: 
 
-1. Open [`.github/workflows/connect-publish.yaml`](./.github/workflows/connect-publish.yaml) - we'll use this as a starting point and modify it so we can get things working. 
+1. Open [`.github/workflows/connect-publish.yaml`](./.github/workflows/connect-publish.yaml) - we'll use this as a starting point and modify it so it fits our project needs. 
 
-2. Change branch name to match the one you have (In this example from 'main' to 'master')
+2. Change branch name to match the one you have (In this example since Colorado and usethis default to creating a "master" branch we'll be changing our branch name from 'main' to 'master')
 
-3. Add the correct Connect URL 
+3. Add the Connect URL. For the provided RStudio Connect server the address is *https://colorado.rstudio.com/rsc*
 
-4. Access type is changed according to what Connect has set (leave as acl)
+4. Access type is changed according to what Connect has set (for this example leave as acl). 
 
 5. Set the dir. The info included in this block are all separate examples. When done using this naming convention this field sets the name of the published document as well as the vanity url. (Future work: figure out how to set name separate from url)
 
@@ -169,7 +149,7 @@ jobs:
 
 ### Second goal: Publish to connect server after testing using a github action 
 
-Let's now set up an additional step and bring all the above parts together by adding testing to our workflow. In this example we are assuming that we would want testing to be kicked off on two conditions; (1) whenever changes are pushed to the repo and (2) if a PR is requested. In addition we want publishing to the Connect server to only happen when tests are successful. To that end we will be adding a second recipe yaml called [`.github/workflows/test-actions.yaml`](./.github/workflows/test-actions.yaml) that will be called by [`.github/workflows/connect-publish.yaml`](./.github/workflows/connect-publish.yaml) that will be setup to run when called (using the workflow-call parameter) and when certain triggers are met (on PR). 
+Let's now set up an additional step and bring all the above parts together by adding testing to our workflow. In this example we are assuming that we would want testing to be kicked off on two conditions; (1) whenever changes are pushed to the repo and (2) if a PR is requested. In addition we want publishing to the Connect server to only happen when tests are successful. To that end we will be modfying our main yaml to call a second yaml recipe called  [`.github/workflows/test-actions.yaml`](./.github/workflows/test-actions.yaml) that will be setup to run when called (using the workflow-call parameter) and when certain triggers are met (on PR). 
 
 - If the tests succeed, the workflow run will pass
 
@@ -182,47 +162,9 @@ application has changed. Tests may need to be updated (or code fixed) to address
 the changes. To do this, you can run the tests locally or address any code
 changes necessary
 
-Make changes to the main recipe yaml [`.github/workflows/test-actions.yaml`](./.github/workflows/test-actions.yaml): 
+#### Create the testing yaml recipe: 
 
-1. By default github actions run in parallel. We need to add `needs: [test-app]`. 
-
-2. Make changes to add the [`.github/workflows/test-actions.yaml`](./.github/workflows/test-actions.yaml)  recipe yaml to our main recipe.
-
-3. Verify that after making changes the yaml now looks something like: 
-
-<details>
-  <summary>Click to expand</summary>
-  
-```
-name: connect-publish
-on:
-  push:
-    branches: [master]
-
-jobs:
-  test-app:
-    uses: ./.github/workflows/test-actions.yaml
-  connect-publish:
-    name: connect-publish
-    needs: [test-app]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Publish Connect content
-        uses: rstudio/actions/connect-publish@main
-        with:
-          url: https://colorado.rstudio.com/rsc/
-          api-key: ${{ secrets.CONNECT_API_KEY }}
-          access-type: acl
-          dir: |
-            .:/shiny-workshop-test-prod
-```
-
-</details>
-
-Create the [`.github/workflows/connect-publish.yaml`](./.github/workflows/connect-publish.yaml) recipe: 
-
-What this recipe does is:
+We will be creating a test yaml recipe at [`.github/workflows/test-actions.yaml`](./.github/workflows/test-actions.yaml). This recipe walks through these steps for creating an environment and running the tests we defined earlier: 
 
 1. Checkout the code 
 
@@ -280,8 +222,50 @@ jobs:
 
 </details>
 
-Tip: The packages being pulled in are cached. First time running an action will take longer but next time should be faster. 
 
+#### Updates to the main recipe yaml
+
+1. Open our main yaml recipe at [`.github/workflows/connect-publish.yaml`](./.github/workflows/connect-publish.yaml)
+
+2. Make changes to add our testing recipe yaml as a step before publishing to Connect. 
+
+   - By default github actions run in parallel. We need to add before publishing to the Connect server so that it requires passing the tests prior to publishing. We can do this by adding `needs: [test-app]`. 
+
+2. Verify that after making changes the yaml now looks something like: 
+
+<details>
+  <summary>Click to expand</summary>
+  
+```
+name: connect-publish
+on:
+  push:
+    branches: [master]
+
+jobs:
+  test-app:
+    uses: ./.github/workflows/test-actions.yaml
+  connect-publish:
+    name: connect-publish
+    needs: [test-app]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Publish Connect content
+        uses: rstudio/actions/connect-publish@main
+        with:
+          url: https://colorado.rstudio.com/rsc/
+          api-key: ${{ secrets.CONNECT_API_KEY }}
+          access-type: acl
+          dir: |
+            .:/shiny-workshop-test-prod
+```
+
+</details>
+
+We can now do the same steps of testing our automation by committing and pushing the changes. Github will see the action and will automatically run. We can open a browser window in our git repo and go to actions -> workflows to watch real time it's progress. 
+
+Tip: The packages being pulled in are cached. First time running an action will take longer but next time should be faster. 
 
 ## Debugging
 
