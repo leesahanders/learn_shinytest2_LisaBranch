@@ -9,6 +9,18 @@ With references, useful details, and pulling in documentation from:
  - https://rstudio.github.io/renv/articles/renv.html
  - https://github.com/colearendt/shinytest-example 
  
+ 
+# A collapsible section with markdown
+<details>
+  <summary>Click to expand!</summary>
+  
+  ## Heading
+  1. A numbered
+  2. list
+     * With some
+     * Sub bullets
+</details>
+ 
 The goal of this example is to walk users through setting up a testing and automated publishing pipeline (continuous integration/continuous deployment) using github actions. To that end we can break this down into three separate chunks that will be put together at the end: 
 
 1. Reproduceability
@@ -40,6 +52,7 @@ This example is mimicking a workflow where a developer is using [renv](https://r
 
 So we have now taken this project where we uploaded a zip onto workbench and we have now set it up in git so we can take advantage of automated workflows. 
 
+Tip: Other authentication options can also work, such as setting up a ssh key and configuring the git credentials with `usethis::use_git_config(user.name = "MyName", user.email = "MyEmail@Email.com")`
 
 ## Trevor's run through: Testing
 
