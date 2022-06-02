@@ -11,7 +11,7 @@ With references, useful details, and pulling in documentation from:
  - https://rstudio.github.io/renv/articles/renv.html
  - https://github.com/colearendt/shinytest-example 
  
-Shout outs to Cole Arendt whose original documentation has been pulled in below and heavily used and Trevor Nederlof who walked through the setup and gotcha's for each step. 
+Credit to Cole Arendt whose original documentation has been pulled in below and heavily used, Trevor Nederlof who walked through the setup and gotcha's for each step, Phil Bowsher for developing the Shiny App being displayed here, and Shannon Hagerty for project and example setup and details. 
 
 </details>
 
