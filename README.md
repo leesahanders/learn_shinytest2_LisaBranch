@@ -20,6 +20,8 @@ With references, useful details, and pulling in documentation from:
      * With some
      * Sub bullets
 </details>
+
+# Goal
  
 The goal of this example is to walk users through setting up a testing and automated publishing pipeline (continuous integration/continuous deployment) using github actions. To that end we can break this down into three separate chunks that will be put together at the end: 
 
