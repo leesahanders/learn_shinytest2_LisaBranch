@@ -363,10 +363,41 @@ pre code {
 
 <div id="learn_shinytest2_lisabranch" class="section level1">
 <h1>learn_shinytest2_LisaBranch</h1>
+<details>
+<summary>
+Project history, click to expand
+</summary>
 <p>This project is a copy from: - <a href="https://github.com/sbhagerty/learn_shinytest2" class="uri">https://github.com/sbhagerty/learn_shinytest2</a></p>
-<p>With references, useful details, and pulling in documentation from: -
-<a href="https://github.com/rstudio/shinytest2" class="uri">https://github.com/rstudio/shinytest2</a> - <a href="https://docs.google.com/presentation/d/1PQ_xZ4MGqB_edc26ty3a97eCM55gwKgPsJ1h1mpEjWA/edit#slide=id.g12d9053b0ec_0_44" class="uri">https://docs.google.com/presentation/d/1PQ_xZ4MGqB_edc26ty3a97eCM55gwKgPsJ1h1mpEjWA/edit#slide=id.g12d9053b0ec_0_44</a>
-- <a href="https://rstudio.github.io/renv/articles/renv.html" class="uri">https://rstudio.github.io/renv/articles/renv.html</a> - <a href="https://github.com/colearendt/shinytest-example" class="uri">https://github.com/colearendt/shinytest-example</a></p>
+With references, useful details, and pulling in documentation from: - <a href="https://github.com/rstudio/shinytest2" class="uri">https://github.com/rstudio/shinytest2</a> - <a href="https://docs.google.com/presentation/d/1PQ_xZ4MGqB_edc26ty3a97eCM55gwKgPsJ1h1mpEjWA/edit#slide=id.g12d9053b0ec_0_44" class="uri">https://docs.google.com/presentation/d/1PQ_xZ4MGqB_edc26ty3a97eCM55gwKgPsJ1h1mpEjWA/edit#slide=id.g12d9053b0ec_0_44</a>
+- <a href="https://rstudio.github.io/renv/articles/renv.html" class="uri">https://rstudio.github.io/renv/articles/renv.html</a> - <a href="https://github.com/colearendt/shinytest-example" class="uri">https://github.com/colearendt/shinytest-example</a>
+</details>
+</div>
+<div id="a-collapsible-section-with-markdown" class="section level1">
+<h1>A collapsible section with markdown</h1>
+<details>
+<summary>
+Click to expand!
+</summary>
+<div id="heading" class="section level2">
+<h2>Heading</h2>
+<ol style="list-style-type: decimal">
+<li>A numbered</li>
+<li>list
+<ul>
+<li>With some</li>
+<li>Sub bullets</li>
+</ul></li>
+</ol>
+</details>
+<details>
+<summary>
+Click to expand!
+</summary>
+</details>
+</div>
+</div>
+<div id="goal" class="section level1">
+<h1>Goal</h1>
 <p>The goal of this example is to walk users through setting up a
 testing and automated publishing pipeline (continuous
 integration/continuous deployment) using github actions. To that end we
@@ -421,6 +452,9 @@ another chrome window for using the git web interface.</p></li>
 <p>So we have now taken this project where we uploaded a zip onto
 workbench and we have now set it up in git so we can take advantage of
 automated workflows.</p>
+<p>Tip: Other authentication options can also work, such as setting up a
+ssh key and configuring the git credentials with
+<code>usethis::use_git_config(user.name = &quot;MyName&quot;, user.email = &quot;MyEmail@Email.com&quot;)</code></p>
 </div>
 <div id="trevors-run-through-testing" class="section level2">
 <h2>Trevor’s run through: Testing</h2>
@@ -429,6 +463,10 @@ interactively or can programmatically create tests and run them manually
 or through automation (which is what we will be doing below). Tests are
 stored in the <a href="./tests/testthat/"><code>./tests/testthat/</code></a> folder.</p>
 <p>Dependencies:</p>
+<details>
+<summary>
+Dependencies set up, click to expand:
+</summary>
 <ol style="list-style-type: decimal">
 <li><p>Install Shinytest dependencies with
 <code>shinytest::installDependencies()</code>.</p></li>
@@ -438,6 +476,7 @@ error (see: <a href="https://github.com/r-lib/pak/issues/298" class="uri">https:
 <li><p>Load the installed <code>library(pak)</code>.</p></li>
 <li><p>Install <code>install.packages(&quot;shinyvalidate&quot;)</code>.</p></li>
 </ol>
+</details>
 <p>Creating and running tests manually:</p>
 <ol style="list-style-type: decimal">
 <li><p>Load <code>library(shinytest2)</code></p></li>
@@ -465,18 +504,19 @@ running of a test the deployment to the Connect server. This yaml recipe
 file lives at <a href="./.github/workflows/connect-publish.yaml"><code>.github/workflows/connect-publish.yaml</code></a></p>
 <p>Setting up for publishing to Connect:</p>
 <ol style="list-style-type: decimal">
-<li>Create an API key on the Connect server you will later be deploying
-to and in GitHub Actions on your repo, set the
-<code>CONNECT_API_KEY</code> secret
+<li><p>Create an API key on the Connect server you will later be
+deploying to and in GitHub Actions on your repo, set the
+<code>CONNECT_API_KEY</code> secret</p>
 <ul>
-<li>Go to the repository on GitHub</li>
-<li>Navigate to Settings &gt; Secrets</li>
-<li>Create a “New Repository Secret” with an API key</li>
+<li><p>Go to the repository on GitHub</p></li>
+<li><p>Navigate to Settings &gt; Secrets</p></li>
+<li><p>Create a “New Repository Secret” with an API key named
+‘CONNECT_API_KEY’</p></li>
 </ul></li>
-<li>Create the manifest document by running in the console:
+<li><p>Create the manifest document by running in the console:
 <code>rsconnect::writeManifest()</code>. This document defines what will
 be included in the deployment to the Connect server when called later
-using the automation we are setting up.</li>
+using the automation we are setting up.</p></li>
 </ol>
 <p>Creating the automation yaml recipe:</p>
 <ol style="list-style-type: decimal">
@@ -496,6 +536,10 @@ figure out how to set name separate from url)</p></li>
 environments / operating systems you want it to test on</p></li>
 <li><p>Verify that your recipe yaml now looks something like:</p></li>
 </ol>
+<details>
+<summary>
+Click to expand
+</summary>
 <pre><code>name: connect-publish
 on:
   push:
@@ -516,6 +560,7 @@ jobs:
           dir: |
             .:/shiny-workshop-test 
             </code></pre>
+</details>
 <ol start="9" style="list-style-type: decimal">
 <li><p>Test the automation by committing and pushing the changes. Github
 will see the action and will automatically run the defined recipe and on
@@ -557,6 +602,10 @@ recipe yaml to our main recipe.</p></li>
 <li><p>Verify that after making changes the yaml now looks something
 like:</p></li>
 </ol>
+<details>
+<summary>
+Click to expand
+</summary>
 <pre><code>name: connect-publish
 on:
   push:
@@ -579,6 +628,7 @@ jobs:
           access-type: acl
           dir: |
             .:/shiny-workshop-test-prod</code></pre>
+</details>
 <p>Create the <a href="./.github/workflows/connect-publish.yaml"><code>.github/workflows/connect-publish.yaml</code></a>
 recipe:</p>
 <p>What this recipe does is:</p>
@@ -595,6 +645,10 @@ and R versions using a “matrix” parameter. This example has that
 removed.</p></li>
 <li><p>Verify that yYour test yaml looks something like:</p></li>
 </ol>
+<details>
+<summary>
+Click to expand
+</summary>
 <pre><code>on:
   pull_request:
     branches: [master]
@@ -627,6 +681,7 @@ jobs:
 
       - name: Test app
         uses: rstudio/shinytest2/actions/test-app@main</code></pre>
+</details>
 <p>Tip: The packages being pulled in are cached. First time running an
 action will take longer but next time should be faster.</p>
 </div>

@@ -1,5 +1,8 @@
 # learn_shinytest2_LisaBranch
 
+<details>
+  <summary>Project history, click to expand</summary>
+  
 This project is a copy from: 
  - https://github.com/sbhagerty/learn_shinytest2
  
@@ -8,9 +11,11 @@ With references, useful details, and pulling in documentation from:
  - https://docs.google.com/presentation/d/1PQ_xZ4MGqB_edc26ty3a97eCM55gwKgPsJ1h1mpEjWA/edit#slide=id.g12d9053b0ec_0_44
  - https://rstudio.github.io/renv/articles/renv.html
  - https://github.com/colearendt/shinytest-example 
+</details>
  
  
 # A collapsible section with markdown
+
 <details>
   <summary>Click to expand!</summary>
   
@@ -19,6 +24,11 @@ With references, useful details, and pulling in documentation from:
   2. list
      * With some
      * Sub bullets
+</details>
+
+<details>
+  <summary>Click to expand!</summary>
+
 </details>
 
 # Goal
@@ -62,6 +72,9 @@ Now let's get set up for testing. We can either develop tests interactively or c
 
 Dependencies: 
 
+<details>
+  <summary>Dependencies set up, click to expand: </summary>
+  
 1. Install Shinytest dependencies with `shinytest::installDependencies()`.
  
 2. Install the dev version of pak to resolve the map_mold dependency error (see: https://github.com/r-lib/pak/issues/298) with 'install.packages("pak", repos = "https://r-lib.github.io/p/pak/dev/")'.
@@ -69,7 +82,10 @@ Dependencies:
 3. Load the installed `library(pak)`.
  
 4. Install `install.packages("shinyvalidate")`.
- 
+
+</details>
+
+
 Creating and running tests manually: 
 
 1. Load `library(shinytest2)`
@@ -120,6 +136,9 @@ Creating the automation yaml recipe:
 
 7. Verify that your recipe yaml now looks something like: 
 
+<details>
+  <summary>Click to expand</summary>
+  
 ```
 name: connect-publish
 on:
@@ -142,6 +161,7 @@ jobs:
             .:/shiny-workshop-test 
             
 ```
+</details>
 
 9. Test the automation by committing and pushing the changes. Github will see the action and will automatically run the defined recipe and on push will try to publish the app to the Connect server specified. 
 
@@ -170,6 +190,9 @@ Make changes to the main recipe yaml [`.github/workflows/test-actions.yaml`](./.
 
 3. Verify that after making changes the yaml now looks something like: 
 
+<details>
+  <summary>Click to expand</summary>
+  
 ```
 name: connect-publish
 on:
@@ -195,6 +218,8 @@ jobs:
             .:/shiny-workshop-test-prod
 ```
 
+</details>
+
 Create the [`.github/workflows/connect-publish.yaml`](./.github/workflows/connect-publish.yaml) recipe: 
 
 What this recipe does is:
@@ -215,6 +240,9 @@ What this recipe does is:
  
 8. Verify that yYour test yaml looks something like: 
 
+<details>
+  <summary>Click to expand</summary>
+  
 ```
 on:
   pull_request:
@@ -249,6 +277,8 @@ jobs:
       - name: Test app
         uses: rstudio/shinytest2/actions/test-app@main
 ```
+
+</details>
 
 Tip: The packages being pulled in are cached. First time running an action will take longer but next time should be faster. 
 
