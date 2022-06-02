@@ -13,8 +13,6 @@ With references, useful details, and pulling in documentation from:
  
 Credit to Cole Arendt whose original documentation has been pulled in below and heavily used, Trevor Nederlof who walked through the setup and gotcha's for each step, Phil Bowsher for developing the Shiny App being displayed here, and Shannon Hagerty for project and example setup and details. 
 
-</details>
-
 ## Goal
  
 The goal of this example is to walk users through setting up a testing and automated publishing pipeline (continuous integration/continuous deployment) using github actions. To that end we can break this down into three separate pieces that will be put together at the end: 
@@ -156,9 +154,9 @@ Lets setup and run our first Github Actions workflow - automated running of a te
 
 10. Open a browser window with your git repo and go to actions -> workflows. Watch real time it's progress. 
 
-### Second goal: Publish to connect server after testing using a github action 
+### Second goal: Putting it all together
 
-Let's now set up an additional step and bring all the above parts together by adding testing to our workflow. In this example we are assuming that we would want testing to be kicked off on two conditions; (1) whenever changes are pushed to the repo and (2) if a PR is requested. In addition we want publishing to the Connect server to only happen when tests are successful. To that end we will be modfying our main yaml to call a second yaml recipe called  [`.github/workflows/test-actions.yaml`](./.github/workflows/test-actions.yaml) that will be setup to run when called (using the workflow-call parameter) and when certain triggers are met (on PR). 
+Let's now set up an additional step and bring all the above parts together by adding testing to our workflow then publishing to the Connect server using github actions. In this example we are assuming that we would want testing to be kicked off on two conditions; (1) whenever changes are pushed to the repo and (2) if a PR is requested. In addition we want publishing to the Connect server to only happen when tests are successful. To that end we will be modfying our main yaml to call a second yaml recipe called  [`.github/workflows/test-actions.yaml`](./.github/workflows/test-actions.yaml) that will be setup to run when called (using the workflow-call parameter) and when certain triggers are met (on PR). 
 
 - If the tests succeed, the workflow run will pass
 
