@@ -1,6 +1,6 @@
 # learn_shinytest2 (Lisa's branch)
 
-# Project History: 
+## Project History: 
   
 This project is a copy from: 
  - https://github.com/sbhagerty/learn_shinytest2
@@ -10,11 +10,14 @@ With references, useful details, and pulling in documentation from:
  - https://docs.google.com/presentation/d/1PQ_xZ4MGqB_edc26ty3a97eCM55gwKgPsJ1h1mpEjWA/edit#slide=id.g12d9053b0ec_0_44
  - https://rstudio.github.io/renv/articles/renv.html
  - https://github.com/colearendt/shinytest-example 
+ 
+Shout outs to Cole Arendt whose original documentation has been pulled in below and heavily used and Trevor Nederlof who walked through the setup and gotcha's for each step. 
+
 </details>
 
-# Goal
+## Goal
  
-The goal of this example is to walk users through setting up a testing and automated publishing pipeline (continuous integration/continuous deployment) using github actions. To that end we can break this down into three separate chunks that will be put together at the end: 
+The goal of this example is to walk users through setting up a testing and automated publishing pipeline (continuous integration/continuous deployment) using github actions. To that end we can break this down into three separate pieces that will be put together at the end: 
 
 1. Reproduceability
    - Using [git](https://happygitwithr.com/), [usethis](https://usethis.r-lib.org/index.html), and [reproduceable environments](https://environments.rstudio.com/) using [renv](https://rstudio.github.io/renv/articles/renv.html). 
@@ -25,7 +28,7 @@ The goal of this example is to walk users through setting up a testing and autom
 3. Automation
    - Using [github actions](https://docs.github.com/en/actions) and various community built action scripts to simplify the process such as [the actions written by the r-lib team](https://github.com/r-lib/actions). 
 
-## Trevor's run through: Reproduceability
+## Reproduceability (Trevor's run through)
 
 This example is mimicking a workflow where a developer is using [renv](https://rstudio.github.io/renv/articles/renv.html) however the project isn't currently using git. We'll be walking through the steps of setting up the provided project files on the [Workbench server provided by RStudio SolEng](https://colorado.rstudio.com/), loading the developer provided environment, and setting up [git](https://happygitwithr.com/) change control using [usethis](https://usethis.r-lib.org/index.html). 
 
@@ -47,11 +50,11 @@ So we have now taken this project where we uploaded a zip onto workbench and we 
 
 Tip: Other authentication options can also work, such as setting up a ssh key and configuring the git credentials with `usethis::use_git_config(user.name = "MyName", user.email = "MyEmail@Email.com")`
 
-## Trevor's run through: Testing
+## Testing (Trevor's run through)
 
 Now let's get set up for testing. We can either develop tests interactively or can programmatically create tests and run them manually or through automation (which is what we will be doing below). Tests are stored in the [`./tests/testthat/`](./tests/testthat/) folder. This project already comes with some tests created for use that can be run interactively or through automation. New tests could also be created either using the record function and can be added or can be directly added to the tests code. 
 
-Dependencies (useful in case of debugging): 
+#### Dependencies (useful in case of debugging): 
 
 <details>
   <summary>Dependencies set up, click to expand: </summary>
@@ -66,7 +69,7 @@ Dependencies (useful in case of debugging):
 
 </details>
 
-Creating and running tests manually: 
+#### Creating and running tests manually: 
 
 1. Load `library(shinytest2)`
  
@@ -78,17 +81,17 @@ Creating and running tests manually:
 
 Tip: The shinytest package commands include testApp() - don't do this! This is antiquated. 
 
-## Trevor's run through: Automation with Github Actions
+## Automation (Trevor's run through)
 
-Github actions are a new capability of using triggers during the git workflow (such as on committing a project, pushing a project, or on PR) kicking off a series of steps defined in a recipe yaml file. 
+Github actions are a new capability of using triggers during the git workflow (such as on committing a project, pushing a project, or on PR) for kicking off a series of steps defined in a recipe yaml file. 
 
 Tip: In the RStudio IDE through the 'files' pane click on the wheel to select the "show hidden files" option. 
 
 ### First goal: Publish to connect server using a github action 
 
-Let's setup and run our first Github Actions workflow - automated running of a test the deployment to the Connect server. This yaml recipe file lives at  [`.github/workflows/connect-publish.yaml`](./.github/workflows/connect-publish.yaml)
+Lets setup and run our first Github Actions workflow - automated running of a test the deployment to the Connect server. We will be using one yaml recipe file that lives at  [`.github/workflows/connect-publish.yaml`](./.github/workflows/connect-publish.yaml)
 
-Setting up for publishing to Connect: 
+####Setting up for publishing to Connect: 
 
 1. Create an API key on the Connect server you will later be deploying to and in GitHub Actions on your repo, set the `CONNECT_API_KEY` secret
 
@@ -100,7 +103,13 @@ Setting up for publishing to Connect:
 
 2. Create the manifest document by running in the console: `rsconnect::writeManifest()`. This document defines what will be included in the deployment to the Connect server when called later using the automation we are setting up. 
 
-Creating the automation yaml recipe: 
+> If you create your own `manifest.json`, you may need to remove your `.Rprofile`
+> before generating it, or edit the `manifest.json` and remove the `.Rprofile`
+> record from "files".
+> 
+> This will be improved in a future version of the GitHub Action
+
+#### Creating the automation yaml recipe: 
 
 1. Open [`.github/workflows/connect-publish.yaml`](./.github/workflows/connect-publish.yaml) - we'll use this as a starting point and modify it so it fits our project needs. 
 
@@ -267,9 +276,20 @@ We can now do the same steps of testing our automation by committing and pushing
 
 Tip: The packages being pulled in are cached. First time running an action will take longer but next time should be faster. 
 
+
+## Next Steps 
+
+ - Make breaking changes to see tests fail during automated deployment 
+
+ - Set up running across multiple R versions and OS's using the "matrix" parameter for cross-platform testing 
+ 
+ - Set up git-backed deployment to the Connect server which will use a "pull-based" approach for deploying commits to git rather than relying on the "push-based" approach. [You can read more about the process here](https://docs.rstudio.com/connect/user/git-backed/). This requires a `manifest.json` in the repository. It is created with
+`rsconnect::writeManifest()`
+
+
 ## Debugging
 
-Upcoming
+Actions currently aren't capable of running on forks of a repository. Be sure that when setting up the git portion that you've fully created the repository on GitHub. 
 
 
-
+Suggestions? Comments? Please reach out to Lisa Anders if you'd like to see anything added (lisa.anders@rstudio.com) 
