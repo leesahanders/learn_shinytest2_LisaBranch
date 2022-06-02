@@ -95,9 +95,12 @@ Let's setup and run our first Github Actions workflow - automated running of a t
 Setting up for publishing to Connect: 
 
 1. Create an API key on the Connect server you will later be deploying to and in GitHub Actions on your repo, set the `CONNECT_API_KEY` secret
+
    - Go to the repository on GitHub
+   
    - Navigate to Settings > Secrets
-   - Create a "New Repository Secret" with an API key
+   
+   - Create a "New Repository Secret" with an API key named 'CONNECT_API_KEY'
 
 2. Create the manifest document by running in the console: `rsconnect::writeManifest()`. This document defines what will be included in the deployment to the Connect server when called later using the automation we are setting up. 
 

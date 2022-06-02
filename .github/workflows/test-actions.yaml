@@ -1,28 +1,14 @@
 on:
- # push:
-  #  branches: [main]
   pull_request:
-    branches: [main]
+    branches: [master]
   workflow_call:
   
 name: test-app
 
 jobs:
   test-app:
-    runs-on: ${{ matrix.config.os }}
-
-    name: Test app ${{ matrix.config.os }} (${{ matrix.config.r }})
-
-    strategy:
-      fail-fast: false
-      matrix:
-        config:
-          - {os: ubuntu-latest, r: release}
-
-    env:
-      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
-      R_KEEP_PKG_SOURCE: yes
-
+    name: test-app
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
 
@@ -30,12 +16,17 @@ jobs:
 
       - uses: r-lib/actions/setup-r@v2
         with:
-          r-version: ${{ matrix.config.r }}
-          http-user-agent: ${{ matrix.config.http-user-agent }}
+          r-version: release
           use-public-rspm: true
+
+      # Connect does not like `renv`'s `./.Rprofile`
+      # Removing from deployment as Connect listens to the `./manifest.json` file
+      - name: Remove `.Rprofile`
+        shell: bash
+        run: |
+          rm .Rprofile
 
       - uses: r-lib/actions/setup-renv@v2 # use our renv.lock
 
       - name: Test app
         uses: rstudio/shinytest2/actions/test-app@main
-      
