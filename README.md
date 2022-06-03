@@ -30,11 +30,11 @@ The goal of this example is to walk users through setting up a testing and autom
 
 This example is mimicking a workflow where a developer is using [renv](https://rstudio.github.io/renv/articles/renv.html) however the project isn't currently using git. We'll be walking through the steps of setting up the provided project files on the [Workbench server provided by RStudio SolEng](https://colorado.rstudio.com/), loading the developer provided environment, and setting up [git](https://happygitwithr.com/) change control using [usethis](https://usethis.r-lib.org/index.html). 
 
-1. Download the zip file. After creating a new RStudio session and creating a new project upload the files using the IDE. 
+1. Create a new RStudio Workbench Session -> File -> New Project -> New Directory and upload the provided project files to the server 
 
-2. Set up our environment by running 'renv::restore()' in the console and then reload the session 
+2. Restore the environment with `renv::restore()`  and reload the session
 
-3. Initialize git with 'usethis::use_git()'
+3. Initialize git with `usethis::use_git()`
 
 4. In order to create a branch so we can do work on it we need to commit the changes we've made. Use the RStudio IDE for committing and pushing changes (include everything except the renv folder and .rprofile file)
 
@@ -83,11 +83,15 @@ Tip: The shinytest package commands include testApp() - don't do this! This is a
 
 Github actions are a new capability of using triggers during the git workflow (such as on committing a project, pushing a project, or on PR) for kicking off a series of steps defined in a recipe yaml file. 
 
+CI/CD pipelins could also be done with other CI Services (e.g. Azure DevOps, Jenkins, etc.)
+ - [Azure devops pipelines for deploying content to RStudio Connect](https://medium.com/rstudio-connect-digest/azure-devops-pipelines-for-deploying-content-to-rstudio-connect-e992f49103b6)
+ - [RStudio Connect Deployments with GitHub Webhooks and Jenkins](https://medium.com/rstudio-connect-digest/rstudio-connect-deployments-with-github-webhooks-and-jenkins-c0dd8a82b986)
+
 Tip: In the RStudio IDE through the 'files' pane click on the wheel to select the "show hidden files" option. 
 
 ### First goal: Publish to connect server using a github action 
 
-Lets setup and run our first Github Actions workflow - automated running of a test the deployment to the Connect server. We will be using one yaml recipe file that lives at  [`.github/workflows/connect-publish.yaml`](./.github/workflows/connect-publish.yaml)
+Lets set up and run our first Github Actions workflow - automated deployment to the Connect server when code is pushed to the git repository. We will be using one yaml recipe file that lives at  [`.github/workflows/connect-publish.yaml`](./.github/workflows/connect-publish.yaml)
 
 #### Setting up for publishing to Connect: 
 
@@ -154,7 +158,7 @@ Lets setup and run our first Github Actions workflow - automated running of a te
 
 10. Open a browser window with your git repo and go to actions -> workflows. Watch real time it's progress. 
 
-### Second goal: Putting it all together
+## Final goal: Putting it all together
 
 Let's now set up an additional step and bring all the above parts together by adding testing to our workflow then publishing to the Connect server using github actions. In this example we are assuming that we would want testing to be kicked off on two conditions; (1) whenever changes are pushed to the repo and (2) if a PR is requested. In addition we want publishing to the Connect server to only happen when tests are successful. To that end we will be modfying our main yaml to call a second yaml recipe called  [`.github/workflows/test-actions.yaml`](./.github/workflows/test-actions.yaml) that will be setup to run when called (using the workflow-call parameter) and when certain triggers are met (on PR). 
 
