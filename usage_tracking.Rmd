@@ -1,0 +1,111 @@
+---
+title: "usage"
+author: "Lisa.Anders"
+date: '2022-06-06'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# References
+
+ - https://bookdown.org/yihui/rmarkdown-cookbook/diagrams.html
+ - https://docs.rstudio.com/how-to-guides/users/pro-tips/widgets/#:~:text=connectwidgets%20is%20an%20RStudio%2Dmaintained,Markdown%20document%20or%20Shiny%20application.
+ - https://docs.google.com/presentation/d/1BGBUO9n9GE9gZYlUb3TXVEOW1-Ci4fXrJcgD1ia34sk/edit#slide=id.g11d55267efd_0_78
+ - https://docs.google.com/presentation/d/1PQ_xZ4MGqB_edc26ty3a97eCM55gwKgPsJ1h1mpEjWA/edit#slide=id.g12a4800bd1a_0_41
+ - https://solutions.rstudio.com/data-science-admin/tracking/
+ - https://docs.rstudio.com/connect/api/#get-/v1/instrumentation/content/visits
+ - https://www.youtube.com/watch?v=0iljqY9j64U
+ - https://shiny.rstudio.com/articles/usage-metrics.html 
+ 
+
+
+```{r include=FALSE}}
+# Set your environmental variables 
+# TODO these shouldn't be exposed 
+Sys.setenv(CONNECT_SERVER = "https://colorado.rstudio.com/rsc/")
+Sys.setenv(CONNECT_API_KEY = "Add_your_key_here")
+
+# Could also do this interactively so the API key isn't exposed:  Sys.setenv("RSTUDIO_CONNECT_API_KEY" = rstudioapi::askForPassword("Enter Connect Token:")) 
+```
+
+```{r}
+library(httr)
+library(tidyverse)
+library(lubridate)
+library(purrr)
+
+# Approach from https://solutions.rstudio.com/data-science-admin/tracking/
+
+#### Get all user ID's so we can translate them later ####
+
+rsc_users <- rsc_get("users")  
+
+users <- map_dfr(
+  rsc_users$results,
+  ~ tibble(
+    user_guid = .x$guid,
+    user_name = .x$username,
+    user_role = .x$user_role
+    )
+  )
+
+# I think rsc needs to have an initial query so this won't fail, could probably be collapsed with above line
+while(length(rsc_users$results) > 0) {
+  rsc_users <-rsc_get(paste0("users?page_number=", rsc_users$current_page + 1))
+  c_users <- map_dfr(
+    rsc_users$results,
+    ~ tibble(
+      user_guid = .x$guid,
+      user_name = .x$username,
+      user_role = .x$user_role
+    )
+  )
+  users <- bind_rows(users, c_users)
+}
+
+
+#### Usage Tracking ####
+rsc_get <- function(endpoint_call){
+  rsc_call <- paste0(Sys.getenv("CONNECT_SERVER"), "__api__/v1/", endpoint_call)
+  rsc_auth <- add_headers(Authorization = paste("Key", Sys.getenv("CONNECT_API_KEY")))
+  resp <- GET(rsc_call, rsc_auth)
+  content(resp)
+}  
+
+# usage for time period (alternative approach would ve using pagination)
+data <- paste0(Sys.Date() - 20, "T00:00:00-00:00")
+rsc_shiny <- rsc_get(paste0("instrumentation/shiny/usage?from=", data))
+
+# I think this is getting all usage on the server, but it's defaulting to just usage for my content. Need to figure out how to add filter to a specific content and/or the translation of the ID so we can filter later (less efficient)
+shiny_usage <- map_dfr(
+  rsc_shiny$results,
+  ~ tibble(
+      guid = .x$content_guid,
+      user = ifelse(is.null(.x$user_guid), "anonymous", .x$user_guid),
+      started = .x$started,
+      ended = .x$ended,
+      ver = .x$data_version
+  )
+)
+
+# Session length
+shiny_usage <- shiny_usage %>%
+  mutate(
+    session_length_seconds = as_datetime(started) %--% as_datetime(ended) / seconds()
+    ) 
+
+# Translate user ID's
+shiny_usage_with_users <- merge(shiny_usage, users, by.x="user", by.y="user_guid", all.x=TRUE)
+
+# Visualization
+#TODO
+
+```
+
+
+
+
+
