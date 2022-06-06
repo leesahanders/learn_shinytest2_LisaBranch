@@ -2,6 +2,25 @@
 
 library(shiny)
 
+# Javascript for getting the action button to be triggered on user pressing enter 
+jscode <- '
+$(function() {
+  var $els = $("[data-proxy-click]");
+  $.each(
+    $els,
+    function(idx, el) {
+      var $el = $(el);
+      var $proxy = $("#" + $el.data("proxyClick"));
+      $el.keydown(function (e) {
+        if (e.keyCode == 13) {
+          $proxy.click();
+        }
+      });
+    }
+  );
+});
+'
+
 ui<- fluidPage(
   titlePanel("Adverse Events Query to OpenFDA", windowTitle = "Adverse Events Query to OpenFDA"),
   fluidRow(
@@ -27,6 +46,11 @@ ui<- fluidPage(
            br(),
            br()
     ),
+    
+    # Javascript for getting the action button to be triggered on user pressing enter 
+    tags$head(tags$script(HTML(jscode))),
+    `data-proxy-click` = "submit",
+    
     column(9,
            plotOutput("plt", width = "auto", height = "640")
     )
