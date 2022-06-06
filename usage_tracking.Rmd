@@ -39,32 +39,6 @@ library(purrr)
 
 # Approach from https://solutions.rstudio.com/data-science-admin/tracking/
 
-#### Get all user ID's so we can translate them later ####
-
-rsc_users <- rsc_get("users")  
-
-users <- map_dfr(
-  rsc_users$results,
-  ~ tibble(
-    user_guid = .x$guid,
-    user_name = .x$username,
-    user_role = .x$user_role
-    )
-  )
-
-# I think rsc needs to have an initial query so this won't fail, could probably be collapsed with above line
-while(length(rsc_users$results) > 0) {
-  rsc_users <-rsc_get(paste0("users?page_number=", rsc_users$current_page + 1))
-  c_users <- map_dfr(
-    rsc_users$results,
-    ~ tibble(
-      user_guid = .x$guid,
-      user_name = .x$username,
-      user_role = .x$user_role
-    )
-  )
-  users <- bind_rows(users, c_users)
-}
 
 
 #### Usage Tracking ####
@@ -96,6 +70,33 @@ shiny_usage <- shiny_usage %>%
   mutate(
     session_length_seconds = as_datetime(started) %--% as_datetime(ended) / seconds()
     ) 
+
+#### Get all user ID's so we can translate them ####
+
+rsc_users <- rsc_get("users")  
+
+users <- map_dfr(
+  rsc_users$results,
+  ~ tibble(
+    user_guid = .x$guid,
+    user_name = .x$username,
+    user_role = .x$user_role
+    )
+  )
+
+# I think rsc needs to have an initial query so this won't fail, could probably be collapsed with above line
+while(length(rsc_users$results) > 0) {
+  rsc_users <-rsc_get(paste0("users?page_number=", rsc_users$current_page + 1))
+  c_users <- map_dfr(
+    rsc_users$results,
+    ~ tibble(
+      user_guid = .x$guid,
+      user_name = .x$username,
+      user_role = .x$user_role
+    )
+  )
+  users <- bind_rows(users, c_users)
+}
 
 # Translate user ID's
 shiny_usage_with_users <- merge(shiny_usage, users, by.x="user", by.y="user_guid", all.x=TRUE)
