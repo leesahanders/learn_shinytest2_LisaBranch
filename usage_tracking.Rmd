@@ -19,16 +19,17 @@ knitr::opts_chunk$set(echo = TRUE)
  - https://docs.rstudio.com/connect/api/#get-/v1/instrumentation/content/visits
  - https://www.youtube.com/watch?v=0iljqY9j64U
  - https://shiny.rstudio.com/articles/usage-metrics.html 
+ - https://github.com/sol-eng/connect-usage
  
 
 
 ```{r include=FALSE}}
-# Set your environmental variables 
 # TODO these shouldn't be exposed 
 Sys.setenv(CONNECT_SERVER = "https://colorado.rstudio.com/rsc/")
-Sys.setenv(CONNECT_API_KEY = "Add_your_key_here")
+Sys.setenv(CONNECT_API_KEY = "")
+Sys.setenv(app_id = "fea06580-a316-48d2-9846-65662b3509df")
 
-# Could also do this interactively so the API key isn't exposed:  Sys.setenv("RSTUDIO_CONNECT_API_KEY" = rstudioapi::askForPassword("Enter Connect Token:")) 
+# For example with: Sys.setenv("RSTUDIO_CONNECT_API_KEY" = rstudioapi::askForPassword("Enter Connect Token:")) 
 ```
 
 ```{r}
@@ -39,9 +40,8 @@ library(purrr)
 
 # Approach from https://solutions.rstudio.com/data-science-admin/tracking/
 
-
-
 #### Usage Tracking ####
+# Alternatively could use get_usage_shiny() function to pull the latest activity of the Shiny apps you are allowed to see within your server.
 rsc_get <- function(endpoint_call){
   rsc_call <- paste0(Sys.getenv("CONNECT_SERVER"), "__api__/v1/", endpoint_call)
   rsc_auth <- add_headers(Authorization = paste("Key", Sys.getenv("CONNECT_API_KEY")))
@@ -53,7 +53,6 @@ rsc_get <- function(endpoint_call){
 data <- paste0(Sys.Date() - 20, "T00:00:00-00:00")
 rsc_shiny <- rsc_get(paste0("instrumentation/shiny/usage?from=", data))
 
-# I think this is getting all usage on the server, but it's defaulting to just usage for my content. Need to figure out how to add filter to a specific content and/or the translation of the ID so we can filter later (less efficient)
 shiny_usage <- map_dfr(
   rsc_shiny$results,
   ~ tibble(
@@ -65,14 +64,13 @@ shiny_usage <- map_dfr(
   )
 )
 
-# Session length
+#### Session length ####
 shiny_usage <- shiny_usage %>%
   mutate(
     session_length_seconds = as_datetime(started) %--% as_datetime(ended) / seconds()
     ) 
 
-#### Get all user ID's so we can translate them ####
-
+#### User ID's translation ####
 rsc_users <- rsc_get("users")  
 
 users <- map_dfr(
@@ -84,7 +82,6 @@ users <- map_dfr(
     )
   )
 
-# I think rsc needs to have an initial query so this won't fail, could probably be collapsed with above line
 while(length(rsc_users$results) > 0) {
   rsc_users <-rsc_get(paste0("users?page_number=", rsc_users$current_page + 1))
   c_users <- map_dfr(
@@ -98,11 +95,32 @@ while(length(rsc_users$results) > 0) {
   users <- bind_rows(users, c_users)
 }
 
-# Translate user ID's
+
+#### Translate user ID's ####
 shiny_usage_with_users <- merge(shiny_usage, users, by.x="user", by.y="user_guid", all.x=TRUE)
 
-# Visualization
-#TODO
+#### Get content details ####
+content <- GET(paste0(Sys.getenv("CONNECT_SERVER"), "__api__/v1/content/", Sys.getenv("app_id")),
+    add_headers(Authorization = paste("Key", Sys.getenv("CONNECT_API_KEY"))))
+
+# needs column name and definitions
+# content <- map_dfr(
+#   content$results,
+#   ~ tibble(
+#       guid = .x$content_guid,
+#       user = ifelse(is.null(.x$user_guid), "anonymous", .x$user_guid),
+#       started = .x$started,
+#       ended = .x$ended,
+#       ver = .x$data_version
+#   )
+# )
+
+
+# Here's the approach from https://docs.rstudio.com/connect/api/#get-/v1/instrumentation/shiny/usage
+# apiKey <- "your api key"
+# 
+# result <- GET("https://connect.example.com/__api__/v1/instrumentation/shiny/usage",
+#     add_headers(Authorization = paste("Key", apiKey)))
 
 ```
 
